@@ -12,7 +12,8 @@
                 <b-list-group-item v-for="item in services" v-bind:key="item.id">
                     <b-row v-if="item.cost > 0">
                         <b-col>
-                            <h5 class="no-margin-bottom"> {{ item.name }}</h5>
+                            <h5 v-if="!isClickableService(item.name)" class="no-margin-bottom"> {{ item.name }}</h5>
+                            <a v-if="isClickableService(item.name)" href="#" @click.prevent="openMoixPortal(item.name)" class="no-margin-bottom" style="font-size: 1.25rem; font-weight: 500;"> {{ item.name }}</a>
                         </b-col>
                         <b-col>
                             <b-row>
@@ -69,7 +70,8 @@ import ModalEnableTurboMode from './modals/ModalEnableTurboMode'
 export default {
   data () {
     return {
-      curItem: null
+      curItem: null,
+      clickableServices: ['Service 1', 'Service 2']
     }
   },
   components: {
@@ -106,6 +108,31 @@ export default {
         setTimeout(this.$store.dispatch, 500, 'GET_SERVICES')
         setTimeout(this.$store.dispatch, 500, 'GET_INDEPENDENT_CONNECT_SERVICES_SETTINGS')
       })
+    },
+    isClickableService (serviceName) {
+      return this.clickableServices.includes(serviceName)
+    },
+    openMoixPortal (serviceName) {
+      const form = document.createElement('form')
+      form.method = 'POST'
+      form.action = 'https://moix.ccs.ru'
+      form.target = '_blank'
+
+      const loginInput = document.createElement('input')
+      loginInput.type = 'hidden'
+      loginInput.name = 'login'
+      loginInput.value = this.$store.getters.PROFILE.login || ''
+
+      const tokenInput = document.createElement('input')
+      tokenInput.type = 'hidden'
+      tokenInput.name = 'token'
+      tokenInput.value = localStorage.getItem('sid_customer') || ''
+
+      form.appendChild(loginInput)
+      form.appendChild(tokenInput)
+      document.body.appendChild(form)
+      form.submit()
+      document.body.removeChild(form)
     }
 
   },

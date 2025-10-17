@@ -88,15 +88,6 @@
                 <b-col cols="1" md="2" xl="2">
                 </b-col>
             </b-row>
-            <b-row style="margin-top:0.5rem;">
-                <b-col cols="1" md="2" xl="2">
-                </b-col>
-                <b-col cols="10" md="8" xl="8">
-                    <b-button block @click="ClickOnMoixLink" variant="primary">{{ $t('Open MOIX Portal') }}</b-button>
-                </b-col>
-                <b-col cols="1" md="2" xl="2">
-                </b-col>
-            </b-row>
         </b-list-group>
         <div v-if="profile.is_active == null" class="text-center text-info my-2">
             <b-spinner class="align-middle" variant="info"></b-spinner>
@@ -135,28 +126,6 @@ export default {
 
         this.$store.dispatch('GET_IS_SIR_ENABLED')
       })
-    },
-    ClickOnMoixLink () {
-      const form = document.createElement('form')
-      form.method = 'POST'
-      form.action = 'https://moix.ccs.ru'
-      form.target = '_blank'
-
-      const loginInput = document.createElement('input')
-      loginInput.type = 'hidden'
-      loginInput.name = 'login'
-      loginInput.value = this.profile.login || ''
-
-      const tokenInput = document.createElement('input')
-      tokenInput.type = 'hidden'
-      tokenInput.name = 'token'
-      tokenInput.value = localStorage.getItem('sid_customer') || ''
-
-      form.appendChild(loginInput)
-      form.appendChild(tokenInput)
-      document.body.appendChild(form)
-      form.submit()
-      document.body.removeChild(form)
     }
   },
   computed: {
