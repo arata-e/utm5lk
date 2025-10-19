@@ -70,8 +70,7 @@ import ModalEnableTurboMode from './modals/ModalEnableTurboMode'
 export default {
   data () {
     return {
-      curItem: null,
-      clickableServices: []
+      curItem: null
     }
   },
   components: {
@@ -110,7 +109,7 @@ export default {
       })
     },
     isClickableService (serviceName) {
-      return this.clickableServices.includes(serviceName)
+      return this.$store.getters.CLICKABLE_SERVICES.includes(serviceName)
     },
     openMoixPortal (serviceName) {
       const form = document.createElement('form')
@@ -133,22 +132,6 @@ export default {
       document.body.appendChild(form)
       form.submit()
       document.body.removeChild(form)
-    },
-    fetchClickableServices () {
-      const login = this.$store.getters.PROFILE.login
-      if (!login) {
-        return
-      }
-
-      this.$http.post('https://esb.ccs.ru/get', { login: login })
-        .then(response => {
-          if (response.data && Array.isArray(response.data)) {
-            this.clickableServices = response.data
-          }
-        })
-        .catch(error => {
-          console.error('Failed to fetch clickable services:', error)
-        })
     }
 
   },
@@ -198,13 +181,16 @@ export default {
   },
   mounted () {
     this.$store.dispatch('GET_SERVICES')
-    this.fetchClickableServices()
+    const login = this.$store.getters.PROFILE.login
+    if (login) {
+      this.$store.dispatch('GET_CLICKABLE_SERVICES', { login: login })
+    }
   },
   watch: {
     '$store.getters.PROFILE': {
       handler (profile) {
         if (profile && profile.login) {
-          this.fetchClickableServices()
+          this.$store.dispatch('GET_CLICKABLE_SERVICES', { login: profile.login })
         }
       },
       deep: true

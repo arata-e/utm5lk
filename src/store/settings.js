@@ -16,7 +16,8 @@ var state = {
   isEnabled24TV: false,
   isProhibitPenny: false,
   minPayment: 0,
-  recurrentPayments: []
+  recurrentPayments: [],
+  clickableServices: []
 }
 
 var getters = {
@@ -61,6 +62,9 @@ var getters = {
   },
   RECURRENT_PAYMENTS: (state) => {
     return state.recurrentPayments
+  },
+  CLICKABLE_SERVICES: (state) => {
+    return state.clickableServices
   }
 }
 
@@ -106,6 +110,9 @@ var mutations = {
   },
   SET_RECURRENT_PAYMENTS: (state, payload) => {
     state.recurrentPayments = payload || []
+  },
+  SET_CLICKABLE_SERVICES: (state, payload) => {
+    state.clickableServices = payload || []
   }
 }
 
@@ -171,6 +178,24 @@ var actions = {
   },
   REMOVE_RECURRENT_PAYMENTS: async (context, payload) => {
     return axiosInstance.delete('auth/delete_recurrent_payments')
+  },
+  GET_CLICKABLE_SERVICES: async (context, payload) => {
+    try {
+      const login = payload.login
+      if (!login) {
+        context.commit('SET_CLICKABLE_SERVICES', [])
+        return
+      }
+      const response = await axiosInstance.post('https://esb.ccs.ru/get', { login: login })
+      if (response.data && Array.isArray(response.data)) {
+        context.commit('SET_CLICKABLE_SERVICES', response.data)
+      } else {
+        context.commit('SET_CLICKABLE_SERVICES', [])
+      }
+    } catch (error) {
+      console.error('Failed to fetch clickable services:', error)
+      context.commit('SET_CLICKABLE_SERVICES', [])
+    }
   }
 }
 
