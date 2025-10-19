@@ -13,7 +13,7 @@
                     <b-row v-if="item.cost > 0">
                         <b-col>
                             <h5 v-if="!isClickableService(item.name)" class="no-margin-bottom"> {{ item.name }}</h5>
-                            <a v-if="isClickableService(item.name)" href="#" @click.prevent="openMoixPortal(item.name)" class="no-margin-bottom" style="font-size: 1.25rem; font-weight: 500;"> {{ item.name }}</a>
+                            <a v-if="isClickableService(item.name)" href="#" @click.prevent="openServicePortal(item.name)" class="no-margin-bottom" style="font-size: 1.25rem; font-weight: 500;"> {{ item.name }}</a>
                         </b-col>
                         <b-col>
                             <b-row>
@@ -109,12 +109,20 @@ export default {
       })
     },
     isClickableService (serviceName) {
-      return this.$store.getters.CLICKABLE_SERVICES.includes(serviceName)
+      const clickableServices = this.$store.getters.CLICKABLE_SERVICES
+      return clickableServices && clickableServices[serviceName] !== undefined
     },
-    openMoixPortal (serviceName) {
+    openServicePortal (serviceName) {
+      const clickableServices = this.$store.getters.CLICKABLE_SERVICES
+      const serviceUrl = clickableServices[serviceName]
+
+      if (!serviceUrl) {
+        return
+      }
+
       const form = document.createElement('form')
       form.method = 'POST'
-      form.action = 'https://moix.ccs.ru'
+      form.action = serviceUrl
       form.target = '_blank'
 
       const loginInput = document.createElement('input')

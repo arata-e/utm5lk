@@ -17,7 +17,7 @@ var state = {
   isProhibitPenny: false,
   minPayment: 0,
   recurrentPayments: [],
-  clickableServices: []
+  clickableServices: {}
 }
 
 var getters = {
@@ -112,7 +112,7 @@ var mutations = {
     state.recurrentPayments = payload || []
   },
   SET_CLICKABLE_SERVICES: (state, payload) => {
-    state.clickableServices = payload || []
+    state.clickableServices = payload || {}
   }
 }
 
@@ -183,18 +183,24 @@ var actions = {
     try {
       const login = payload.login
       if (!login) {
-        context.commit('SET_CLICKABLE_SERVICES', [])
+        context.commit('SET_CLICKABLE_SERVICES', {})
         return
       }
       const response = await axiosInstance.post('https://esb.ccs.ru/get', { login: login })
-      if (response.data && Array.isArray(response.data)) {
+      if (response.data && typeof response.data === 'object' && !Array.isArray(response.data)) {
         context.commit('SET_CLICKABLE_SERVICES', response.data)
+      } else if (response.data && Array.isArray(response.data)) {
+        const dict = {}
+        response.data.forEach(serviceName => {
+          dict[serviceName] = 'https://moix.ccs.ru'
+        })
+        context.commit('SET_CLICKABLE_SERVICES', dict)
       } else {
-        context.commit('SET_CLICKABLE_SERVICES', [])
+        context.commit('SET_CLICKABLE_SERVICES', {})
       }
     } catch (error) {
       console.error('Failed to fetch clickable services:', error)
-      context.commit('SET_CLICKABLE_SERVICES', [])
+      context.commit('SET_CLICKABLE_SERVICES', {})
     }
   }
 }
